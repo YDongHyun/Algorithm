@@ -131,7 +131,6 @@ int main() {
 		for (int j = 1; j <= m; j++) {
 			if (man[j].escape) { continue; }
 			int dir = find_dir(j);
-
 			man[j].y += dy[dir];
 			man[j].x += dx[dir];
 			if (dir != 0) {
@@ -141,12 +140,13 @@ int main() {
 				man[j].escape = 1;
 			}
 		}
-
+		int flag = 0;
 		for (int j = 1; j <= m; j++) {
 			if (man[j].escape) { continue; }
-
+			flag = 1;
 			find_man(j);
 		}
+		if (flag==0) { break; }
 
 		rotation_box(global_dist);
 
