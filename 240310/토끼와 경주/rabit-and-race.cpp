@@ -5,7 +5,7 @@ using namespace std;
 int q, n, m,p;
 
 struct Rabbit {
-	int y, x;
+	long long y, x;
 	int id;
 	long long d;
 	int count;
@@ -13,7 +13,7 @@ struct Rabbit {
 };
 
 struct YX {
-	int y, x;
+	long long y, x;
 };
 
 struct Cmp1 {
@@ -64,10 +64,10 @@ void race(int k, int point) {
 		YX max_ = { 0,0 };
 		int y = rabbit1.begin()->y;
 		int x = rabbit1.begin()->x;
-		int dist = rabbit1.begin()->d;
+		long long dist = rabbit1.begin()->d;
 		for (int i = 0; i < 4; i++) {
-			int ny = y + dy[i] * dist;
-			int nx = x + dx[i] * dist;
+			long long ny = y + dy[i] * dist;
+			long long nx = x + dx[i] * dist;
 			while(ny<1 || nx<1 || ny>n || nx>m){
 				if ( ny > n) {
 					ny = 2 * n - ny;
@@ -146,7 +146,7 @@ void change(int id, int l) {
 }
 
 void find_king() {
-	int max_num = 0;
+	long long max_num = 0;
 	for (auto tmp : rabbit1) {
 		if (tmp.score > max_num) {
 			max_num = tmp.score;
