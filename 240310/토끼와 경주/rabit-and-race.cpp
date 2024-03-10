@@ -7,9 +7,9 @@ int q, n, m,p;
 struct Rabbit {
 	int y, x;
 	int id;
-	int d;
+	long long d;
 	int count;
-	int score;
+	long long score;
 };
 
 struct YX {
@@ -55,7 +55,7 @@ int dy[4] = { -1,1,0,0 };
 int dx[4] = { 0,0,-1,1 };
 
 void race(int k, int point) {
-	int cost[2001] = { 0 };
+	long long cost[2001] = { 0 };
 	int DAT[2001] = { 0 };
 	set<Rabbit, Cmp2> rabbit2;
 	set<Rabbit, Cmp1> tmp_rabbit;
