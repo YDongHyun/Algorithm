@@ -1,44 +1,32 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <set>
 #include <map>
+#include <queue>
 #include <stdio.h>
 using namespace std;
 
 int q, n, m, p;
 
 struct Rabbit {
-	long long y, x;
+	int y, x;
 	int id;
-	long long d;
 	int count;
+};
+
+struct Info {
+	int d;
 	long long score;
 };
 
 struct YX {
-	long long y, x;
+	int y, x;
 };
 
 struct Cmp1 {
 	bool operator()(Rabbit a, Rabbit b) const {
 		if (a.count != b.count) {
-			return a.count < b.count;
+			return a.count > b.count;
 		}
-		if (a.x + a.y != b.x + b.y) {
-			return a.x + a.y < b.x + b.y;
-		}
-		if (a.y != b.y) {
-			return a.y < b.y;
-		}
-		if (a.x != b.x) {
-			return a.x < b.x;
-		}
-		return a.id < b.id;
-	}
-};
-
-struct Cmp2 {
-	bool operator()(Rabbit a, Rabbit b) const {
 		if (a.x + a.y != b.x + b.y) {
 			return a.x + a.y > b.x + b.y;
 		}
@@ -52,26 +40,36 @@ struct Cmp2 {
 	}
 };
 
-set<Rabbit, Cmp1> rabbit1;
+struct Cmp2 {
+	bool operator()(Rabbit a, Rabbit b) const {
+		if (a.x + a.y != b.x + b.y) {
+			return a.x + a.y < b.x + b.y;
+		}
+		if (a.y != b.y) {
+			return a.y < b.y;
+		}
+		if (a.x != b.x) {
+			return a.x < b.x;
+		}
+		return a.id < b.id;
+	}
+};
 
+priority_queue<Rabbit,vector<Rabbit>,Cmp1> rabbit1;
+map<int, Info> info;
 int dy[4] = { -1,1,0,0 };
 int dx[4] = { 0,0,-1,1 };
 
 void race(int k, int point) {
-	map<int, long long> cost;
-	map<int, int> DAT;
-
-	set<Rabbit, Cmp2> rabbit2;
-	set<Rabbit, Cmp1> tmp_rabbit;
-
+	priority_queue<Rabbit, vector<Rabbit>, Cmp2> rabbit2;
 	for (int i = 0; i < k; i++) {
+		Rabbit now = rabbit1.top();
+		rabbit1.pop();
+		int dist = info[now.id].d;
 		YX max_ = { 0,0 };
-		int y = rabbit1.begin()->y;
-		int x = rabbit1.begin()->x;
-		long long dist = rabbit1.begin()->d;
-		for (int i = 0; i < 4; i++) {
-			long long ny = y + dy[i] * dist;
-			long long nx = x + dx[i] * dist;
+		for (int j = 0; j < 4; j++) {
+			int ny = now.y + dy[j] * info[now.id].d;
+			int nx = now.x + dx[j] * info[now.id].d;
 			while (ny<1 || nx<1 || ny>n || nx>m) {
 				if (ny > n) {
 					ny = 2 * n - ny;
@@ -100,64 +98,29 @@ void race(int k, int point) {
 				}
 			}
 		}
-
-		for (auto tmp : rabbit1) {
-			if (tmp.id != rabbit1.begin()->id) {
-				cost[tmp.id] += max_.x + max_.y;
+		for (map<int, Info>::iterator i = info.begin(); i!= info.end(); i++){
+			if(i->first!=now.id){
+				i->second.score += max_.y + max_.x;
 			}
 		}
-		if (DAT[rabbit1.begin()->id] = 1) {
-			rabbit2.erase({ rabbit1.begin()->y,rabbit1.begin()->x
-				,rabbit1.begin()->id ,rabbit1.begin()->d,rabbit1.begin()->count,
-				rabbit1.begin()->score });
-		}
-		rabbit2.insert({ max_.y,max_.x
-		,rabbit1.begin()->id ,rabbit1.begin()->d,rabbit1.begin()->count,
-		rabbit1.begin()->score });
-		int tmp_y = rabbit1.begin()->y;
-		int tmp_x = rabbit1.begin()->x;
-		rabbit1.insert({ max_.y,max_.x
-				,rabbit1.begin()->id ,rabbit1.begin()->d,rabbit1.begin()->count + 1,
-				rabbit1.begin()->score });
-		rabbit1.erase({ tmp_y, tmp_x
-				,rabbit1.begin()->id ,rabbit1.begin()->d,rabbit1.begin()->count,
-				rabbit1.begin()->score });
-
-		DAT[rabbit1.begin()->id] = 1;
+		rabbit1.push({ max_.y, max_.x, now.id ,now.count + 1 });
+		rabbit2.push({ max_.y, max_.x, now.id ,now.count + 1 });
 	}
-	cost[rabbit2.begin()->id] += point;
-	for (auto tmp : rabbit1) {
-		tmp_rabbit.insert({ tmp.y,tmp.x,tmp.id ,tmp.d,tmp.count,tmp.score + cost[tmp.id] });
-
-	}
-	rabbit1.clear();
-	for (auto tmp : tmp_rabbit) {
-		rabbit1.insert({ tmp.y,tmp.x,tmp.id ,tmp.d,tmp.count,tmp.score });
-	}
+	info[rabbit2.top().id].score += point;
 }
 
 void change(int id, int l) {
-	set<Rabbit, Cmp1> tmp_rabbit;
-	//int dist = (rabbit1.begin()->d * l) / (n * m) + (rabbit1.begin()->d * l) % (n * m);
-	for (set<Rabbit>::iterator i = rabbit1.begin(); i != rabbit1.end(); i++) {
-		if (i->id == id) {
-			tmp_rabbit.insert({ i->y,i->x,i->id ,i->d*l,i->count,i->score });
-			rabbit1.erase({ i->y,i->x,i->id ,i->d,i->count,i->score });
-			break;
-		}
-	}
-	rabbit1.insert({ tmp_rabbit.begin()->y,tmp_rabbit.begin()->x ,tmp_rabbit.begin()->id ,
-		tmp_rabbit.begin()->d ,tmp_rabbit.begin()->count ,tmp_rabbit.begin()->score });
+	info[id].d *= l;
 }
 
 void find_king() {
-	long long max_num = 0;
-	for (auto tmp : rabbit1) {
-		if (tmp.score > max_num) {
-			max_num = tmp.score;
+	int max_ = 0;
+	for (auto tmp : info) {
+		if (tmp.second.score > max_) {
+			max_ = tmp.second.score;
 		}
 	}
-	cout << max_num;
+	cout << max_;
 }
 
 int main() {
@@ -167,23 +130,22 @@ int main() {
 	int query;
 	int a, b;
 	for (int i = 0; i < q; i++) {
-		cin >> query;
+		scanf("%d",&query);
 		if (query == 100) {
-			cin >> n >> m >> p;
+			scanf("%d %d %d",&n,&m,&p);
 			for (int j = 0; j < p; j++) {
-				cin >> a >> b;
-				rabbit1.insert({ 1,1,a,b,0,0 });
+				scanf("%d %d", &a, &b);
+				rabbit1.push({ 1,1,a,0 });
+				info[a] = { b,0 };
 			}
 			int de = -1;
 		}
 		else if (query == 200) {
-			cin >> a >> b;
-
-
+			scanf("%d %d", &a, &b);
 			race(a, b);
 		}
 		else if (query == 300) {
-			cin >> a >> b;
+			scanf("%d %d", &a, &b);
 			change(a, b);
 		}
 
