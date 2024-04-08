@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <cstring>
 using namespace std;
 
 struct YX {
@@ -21,7 +20,7 @@ int map[30][30];
 int tmp_map[30][30];
 
 int visited[30][30];
-int map_count[300][300];
+int map_count[900][900];
 
 int dy[4] = { -1,1,0,0 };
 int dx[4] = { 0,0,-1,1 };
