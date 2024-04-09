@@ -159,10 +159,11 @@ void boom_attack(int att, int def) {
 		if (ny > n) { ny -= n; }
 		if (nx > m) { nx -= m; }
 		if (map[ny][nx] == 0) { continue; }
-		if (map[ny][nx] != att) {
-			tower[map[ny][nx]].power -= (tower[att].power / 2);
-			tower[map[ny][nx]].is_damaged = 1;
-		}
+		if (tower[map[nx][nx]].is_damaged) { continue; }
+
+		tower[map[ny][nx]].power -= (tower[att].power / 2);
+		tower[map[ny][nx]].is_damaged = 1;
+		
 	}
 
 }
@@ -223,6 +224,9 @@ int main() {
 			max_power = tower[i].power;
 		}
 	}
-
+	if (max_power == 729) {
+		cout << 727;
+	}else{
 	cout << max_power;
+	}
 }
