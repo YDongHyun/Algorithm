@@ -93,7 +93,7 @@ bool laser_bfs(int y_, int x_,int att_idx) {
 			int nx = now.x + dx[i];
 			if (ny < 1) { ny += n; }
 			else if (nx < 1) { nx += m; }
-			else if (ny > n) { nx -= n; }
+			else if (ny > n) { ny -= n; }
 			else if (nx > n) { nx -= m; }
 			if (map[ny][nx] == 0) { continue; }
 			if (visited[ny][nx]) { continue; }
@@ -123,7 +123,7 @@ void laser_attack(int att, int def) {
 			int nx = att_yx.x + dx[j];
 			if (ny < 1) { ny += n; }
 			else if (nx < 1) { nx += m; }
-			else if (ny > n) { nx -= n; }
+			else if (ny > n) { ny -= n; }
 			else if (nx > n) { nx -= m; }
 			if (map[ny][nx] == 0) { continue; }
 			if (visited[ny][nx] == route - 1) {
@@ -156,11 +156,11 @@ void boom_attack(int att, int def) {
 		int nx = def_yx.x + dx[i];
 		if (ny < 1) { ny += n; }
 		if (nx < 1) { nx += m; }
-		if (ny > n) { nx -= n; }
+		if (ny > n) { ny -= n; }
 		if (nx > n) { nx -= m; }
 		if (map[ny][nx] == 0) { continue; }
 		if (map[ny][nx] != att) {
-			tower[map[ny][nx]].power- tower[att].power / 2;
+			tower[map[ny][nx]].power-= (tower[att].power / 2);
 			tower[map[ny][nx]].is_damaged = 1;
 		}
 	}
@@ -184,7 +184,7 @@ int main() {
 
 	for (int iter = 1; iter <=k; iter++) {
 		int att_idx=find_attacker();
-		tower[att_idx].is_attack = k;
+		tower[att_idx].is_attack = iter;
 		int def_idx = find_defender();
 		memset(visited, 0, sizeof(visited));
 		if (laser_bfs(tower[def_idx].y, tower[def_idx].x, att_idx)) {
