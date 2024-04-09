@@ -23,7 +23,7 @@ vector<Human> runner;
 int n, m, h, k;
 
 int map[101][101];
-int runner_map[101][101];
+vector<int> runner_map[101][101];
 
 int dy[4] = { -1,0,1,0 };
 int dx[4] = { 0,1,0,-1 };
@@ -35,11 +35,15 @@ int margin;
 queue<YX> c_move;
 
 void move_runner() {
-	memset(runner_map, 0, sizeof(runner_map));
+	for (int i = 0; i <=n; i++) {
+		for (int j = 0; j <=n; j++) {
+			runner_map[i][j].clear();
+		}
+	}
 	for (int i = 0; i < runner.size(); i++) {
 		if (runner[i].catched) { continue; }
 		if (3 <abs(runner[i].y - catcher.y) + abs(runner[i].x - catcher.x)) { 
-			runner_map[runner[i].y][runner[i].x] = i + 1;
+			runner_map[runner[i].y][runner[i].x].push_back (i + 1);
 			continue; 
 		}
 
@@ -50,7 +54,7 @@ void move_runner() {
 			ny = runner[i].y + dy[runner[i].dir];
 			nx = runner[i].x + dx[runner[i].dir];
 			if (ny == catcher.y && nx == catcher.x) {
-				runner_map[runner[i].y][runner[i].x] = i + 1;
+				runner_map[runner[i].y][runner[i].x].push_back(i + 1);
 				continue;
 			}
 			else {
@@ -59,15 +63,17 @@ void move_runner() {
 			}
 
 		}
-		else if (ny == catcher.y && nx == catcher.x) {
-			runner_map[runner[i].y][runner[i].x] = i + 1;
-			continue;
+		else{
+			if (ny == catcher.y && nx == catcher.x) {
+				runner_map[runner[i].y][runner[i].x].push_back(i + 1);
+				continue;
+			}
+			else {
+				runner[i].y = ny;
+				runner[i].x = nx;
+			}
 		}
-		else {
-			runner[i].y = ny;
-			runner[i].x = nx;
-		}
-		runner_map[runner[i].y][runner[i].x] = i+1;
+		runner_map[runner[i].y][runner[i].x].push_back(i+1);
 	}
 }
 
@@ -125,9 +131,9 @@ void move_catcher(int mode) {
 		}
 		int ny = catcher.y + dy[catcher.dir];
 		int nx = catcher.x + dx[catcher.dir];
-		if (ny == 0 && nx==1) {
+		if (ny == 1 && nx==1) {
 			catcher.dir = (catcher.dir + 2) % 4;
-			catcher.y = 2;
+			catcher.y = 1;
 			catcher.x = 1;
 			mode_flag = 1;
 			margin++;
@@ -165,16 +171,17 @@ void move_catcher(int mode) {
 
 int find_runner() {
 	int cnt = 0;
-	for (int i = 1; i <=2;i++) {
+	for (int i = 0; i <=2;i++) {
 		int ny = catcher.y + dy[catcher.dir] * i;
 		int nx = catcher.x + dx[catcher.dir] * i;
 		if (ny<1 || nx<1 || ny>n || nx>n) { continue; }
-		for (int j = 0; j < runner.size();j++) {
-			if (runner_map[ny][nx] == 0 || map[ny][nx]==1) { continue; }
-			if (runner[runner_map[ny][nx] - 1].catched) { continue; }
-			runner[runner_map[ny][nx] - 1].catched = 1;
+		if (map[ny][nx] == 1) { continue; }
+		for (int j = 0; j < runner_map[ny][nx].size(); j++) {
+			if (runner[runner_map[ny][nx][j] - 1].catched) { continue; }
+			runner[runner_map[ny][nx][j] - 1].catched = 1;
 			cnt++;
 		}
+		
 	}
 	return cnt;
 }
@@ -200,7 +207,6 @@ int main() {
 		move_catcher(mode_flag);
 		int catch_cnt=find_runner();
 		score += iter * catch_cnt;
-		//cout << catcher.y << " " << catcher.x << "\n";
 
 	}
 	cout << score;
