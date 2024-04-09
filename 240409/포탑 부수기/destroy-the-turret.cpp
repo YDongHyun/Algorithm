@@ -18,12 +18,12 @@ struct Tower {
 
 vector<Tower> tower;
 
-int n, m,k;
+int n, m, k;
 int map[11][11];
 int visited[11][11];
 
-int dy[8] = { 0,1,0,-1 ,1,1,-1,-1};
-int dx[8] = { 1,0,-1,0 ,1,-1,1,-1};
+int dy[8] = { 0,1,0,-1 ,1,1,-1,-1 };
+int dx[8] = { 1,0,-1,0 ,1,-1,1,-1 };
 
 int find_attacker() {
 	int min_power = 21e8;
@@ -41,7 +41,7 @@ int find_attacker() {
 					min_idx = i;
 				}
 			}
-			else if(tower[min_idx].is_attack < tower[i].is_attack){
+			else if (tower[min_idx].is_attack < tower[i].is_attack) {
 				min_idx = i;
 			}
 		}
@@ -81,7 +81,7 @@ int find_defender() {
 	return max_idx;
 }
 
-bool laser_bfs(int y_, int x_,int att_idx) {
+bool laser_bfs(int y_, int x_, int att_idx) {
 	queue<YX> q;
 	q.push({ y_,x_ });
 	visited[y_][x_] = 1;
@@ -94,7 +94,7 @@ bool laser_bfs(int y_, int x_,int att_idx) {
 			if (ny < 1) { ny += n; }
 			else if (nx < 1) { nx += m; }
 			else if (ny > n) { ny -= n; }
-			else if (nx > n) { nx -= m; }
+			else if (nx > m) { nx -= m; }
 			if (map[ny][nx] == 0) { continue; }
 			if (visited[ny][nx]) { continue; }
 			visited[ny][nx] = visited[now.y][now.x] + 1;
@@ -113,18 +113,18 @@ void laser_attack(int att, int def) {
 	YX att_yx = { tower[att].y,tower[att].x };
 	YX def_yx = { tower[def].y,tower[def].x };
 	tower[att].power += (n + m);
-	tower[att].is_damaged =1;
+	tower[att].is_damaged = 1;
 
 	int route = visited[att_yx.y][att_yx.x];
 
-	while(1){
+	while (1) {
 		for (int j = 0; j < 4; j++) {
 			int ny = att_yx.y + dy[j];
 			int nx = att_yx.x + dx[j];
 			if (ny < 1) { ny += n; }
 			else if (nx < 1) { nx += m; }
 			else if (ny > n) { ny -= n; }
-			else if (nx > n) { nx -= m; }
+			else if (nx > m) { nx -= m; }
 			if (map[ny][nx] == 0) { continue; }
 			if (visited[ny][nx] == route - 1) {
 				tower[map[ny][nx]].is_damaged = 1;
@@ -157,10 +157,10 @@ void boom_attack(int att, int def) {
 		if (ny < 1) { ny += n; }
 		if (nx < 1) { nx += m; }
 		if (ny > n) { ny -= n; }
-		if (nx > n) { nx -= m; }
+		if (nx > m) { nx -= m; }
 		if (map[ny][nx] == 0) { continue; }
 		if (map[ny][nx] != att) {
-			tower[map[ny][nx]].power-= (tower[att].power / 2);
+			tower[map[ny][nx]].power -= (tower[att].power / 2);
 			tower[map[ny][nx]].is_damaged = 1;
 		}
 	}
@@ -175,31 +175,35 @@ int main() {
 		for (int j = 1; j <= m; j++) {
 			cin >> map[i][j];
 			if (map[i][j] > 0) {
-				tower.push_back({ i,j,map[i][j],0,0,0});
+				tower.push_back({ i,j,map[i][j],0,0,0 });
 				map[i][j] = tower_idx;
 				tower_idx++;
 			}
 		}
 	}
 
-	for (int iter = 1; iter <=k; iter++) {
-		int att_idx=find_attacker();
+	for (int iter = 1; iter <= k; iter++) {
+		int att_idx = find_attacker();
 		tower[att_idx].is_attack = iter;
 		int def_idx = find_defender();
+		if (att_idx ==def_idx) {
+			break;
+		}
 		memset(visited, 0, sizeof(visited));
 		if (laser_bfs(tower[def_idx].y, tower[def_idx].x, att_idx)) {
 			laser_attack(att_idx, def_idx);
 		}
 		else {
-			
+
 			boom_attack(att_idx, def_idx);
 		}
-
+		int cnt = 0;
 		for (int i = 1; i < tower.size(); i++) {
 			if (tower[i].is_damaged) {
 				if (tower[i].power <= 0) {
 					map[tower[i].y][tower[i].x] = 0;
 					tower[i].is_die = 1;
+		
 				}
 				else {
 					tower[i].is_damaged = 0;
@@ -210,6 +214,7 @@ int main() {
 			}
 
 		}
+
 	}
 
 	int max_power = 0;
