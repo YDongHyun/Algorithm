@@ -33,7 +33,7 @@ int find_attacker() {
 		if (min_power == tower[i].power) {
 			if (tower[min_idx].is_attack == tower[i].is_attack) {
 				if (tower[min_idx].y + tower[min_idx].x == tower[i].y + tower[i].x) {
-					if (tower[min_idx].y < tower[i].y) {
+					if (tower[min_idx].x<tower[i].x) {
 						min_idx = i;
 					}
 				}
@@ -61,7 +61,7 @@ int find_defender() {
 		if (max_power == tower[i].power) {
 			if (tower[max_idx].is_attack == tower[i].is_attack) {
 				if (tower[max_idx].y + tower[max_idx].x == tower[i].y + tower[i].x) {
-					if (tower[max_idx].y > tower[i].y) {
+					if (tower[max_idx].x > tower[i].x) {
 						max_idx = i;
 					}
 				}
@@ -159,11 +159,11 @@ void boom_attack(int att, int def) {
 		if (ny > n) { ny -= n; }
 		if (nx > m) { nx -= m; }
 		if (map[ny][nx] == 0) { continue; }
-		if (tower[map[nx][nx]].is_damaged) { continue; }
-
-		tower[map[ny][nx]].power -= (tower[att].power / 2);
-		tower[map[ny][nx]].is_damaged = 1;
-		
+		if (tower[map[ny][nx]].is_damaged == 1) { continue; }
+		if (map[ny][nx] != att) {
+			tower[map[ny][nx]].power -= (tower[att].power / 2);
+			tower[map[ny][nx]].is_damaged = 1;
+		}
 	}
 
 }
@@ -187,7 +187,7 @@ int main() {
 		int att_idx = find_attacker();
 		tower[att_idx].is_attack = iter;
 		int def_idx = find_defender();
-		if (att_idx ==def_idx) {
+		if (att_idx == def_idx) {
 			break;
 		}
 		memset(visited, 0, sizeof(visited));
@@ -204,7 +204,7 @@ int main() {
 				if (tower[i].power <= 0) {
 					map[tower[i].y][tower[i].x] = 0;
 					tower[i].is_die = 1;
-		
+
 				}
 				else {
 					tower[i].is_damaged = 0;
@@ -215,6 +215,7 @@ int main() {
 			}
 
 		}
+		
 
 	}
 
@@ -224,9 +225,6 @@ int main() {
 			max_power = tower[i].power;
 		}
 	}
-	if (max_power == 729) {
-		cout << 727;
-	}else{
+
 	cout << max_power;
-	}
 }
