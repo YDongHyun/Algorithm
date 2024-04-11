@@ -84,10 +84,18 @@ void map_init() {
 void draw_train_map(int idx) {
 	memset(visited, 0, sizeof(visited));
 	Train now = team[idx];
-
+	//visited[now.head.y][now.head.x] = 1;
 	for (int i = 1; i <= now.length; i++) {
 		for (int j = 0; j < 4; j++) {
-			if (i == 1 &&  j == (now.dir + 2) % 2) { continue; }
+			if (i == 1 &&  j == now.dir) { continue; }
+			if (i==2) {
+				if (now.length == 2) {
+					team[idx].tail = { now.head.y,now.head.x };
+				}
+				visited[now.head.y][now.head.x] = 1; 
+				train_map[now.head.y][now.head.x] = { idx,i };
+				break;
+			}
 			int ny = now.head.y + dy[j];
 			int nx = now.head.x + dx[j];
 			if (ny<1 || nx <1 || ny>n || nx>n) { continue; }
@@ -95,12 +103,16 @@ void draw_train_map(int idx) {
 			if (map[ny][nx] == 4) {
 				visited[ny][nx] = 1;
 				if (i == 1) {
+					team[idx].dir = (j + 2) % 4;
+					train_map[ny][nx] = { idx,i };
 					team[idx].head = { ny,nx };
+					break;
 				}
 
 				if (i == now.length) {
 					team[idx].tail = { ny,nx };
 				}
+				//now.dir = (i + 2) % 4;
 				train_map[ny][nx] = { idx,i };
 				now.head = { ny,nx };
 				break;
@@ -111,8 +123,8 @@ void draw_train_map(int idx) {
 }
 
 YX throw_ball(int round) {
-	int mode = (round / 4)%4;
-	int number = round % 4;
+	int mode = (round / n)%n;
+	int number = round % n;
 	if (mode == 0) {
 		for (int i = 1; i <= n; i++) {
 			if (train_map[number][i].y != 0 || train_map[number][i].x != 0) {
@@ -154,7 +166,7 @@ void find_dir(int idx) {
 		int ny = now.head.y + dy[i];
 		int nx = now.head.x + dx[i];
 		if (ny<1 || nx <1 || ny>n || nx>n) { continue; }
-		if (map[ny][nx] == now.length - 1) {
+		if (train_map[ny][nx].x == now.length - 1) {
 			team[idx].dir = i;
 			return;
 		}
