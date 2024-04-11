@@ -126,8 +126,8 @@ void draw_train_map(int idx) {
 }
 
 YX throw_ball(int round) {
-	int mode = (round / n)%n;
-	int number = round % n;
+	int mode = (round / n)%4;
+	int number = (round % n) + 1;
 	if (mode == 0) {
 		for (int i = 1; i <= n; i++) {
 			if (train_map[number][i].y != 0 || train_map[number][i].x != 0) {
@@ -146,8 +146,8 @@ YX throw_ball(int round) {
 
 	else if (mode == 2) {
 		for (int i = n; i >= 1; i--) {
-			if (train_map[number][i].y != 0 || train_map[number][i].x != 0) {
-				return train_map[number][i];
+			if (train_map[(n+1)-number][i].y != 0 || train_map[(n + 1) - number][i].x != 0) {
+				return train_map[(n + 1) - number][i];
 			}
 		}
 
@@ -155,8 +155,8 @@ YX throw_ball(int round) {
 
 	else if (mode == 3) {
 		for (int i = 1; i <= n; i++) {
-			if (train_map[i][number].y != 0 || train_map[i][number].x != 0) {
-				return train_map[i][number];
+			if (train_map[i][(n + 1) - number].y != 0 || train_map[i][(n + 1) - number].x != 0) {
+				return train_map[i][(n + 1) - number];
 			}
 		}
 	}
@@ -193,7 +193,7 @@ int main() {
 	}
 	map_init();
 
-	for (int round = 1; round <=k; round++) {
+	for (int round = 0; round <k; round++) {
 		memset(train_map, 0, sizeof(train_map));
 		for (int i = 0; i < m; i++) {;
 			draw_train_map(i);
