@@ -41,7 +41,7 @@ void find_train(YX yx) {
 	while (!q.empty()) {
 		YX now = q.front();
 		q.pop();
-
+		int flag = 0;
 		for(int i=0; i<4; i++){
 			int ny = now.y + dy[i];
 			int nx = now.x + dx[i];
@@ -51,22 +51,25 @@ void find_train(YX yx) {
 			if (map[ny][nx] == 2) {
 				if (map[now.y][now.x] == 1) {
 					init_dir = i;
+					flag = 1;
 				}
 
 				train_length++;
 				q.push({ ny,nx });
 			}
 			if (map[ny][nx] == 3) {
-				if (map[now.y][now.x] == 1) {
+				if (map[now.y][now.x] == 1 && !flag) {
 					init_dir = i;
 				}
+
 				tmp_tail = { ny,nx };
 				train_length++;
-				team.push_back({ yx,init_dir,train_length,tmp_tail });
-				break;
 			}
 		}
+		
 	}
+	team.push_back({ yx,init_dir,train_length,tmp_tail });
+
 }
 
 
