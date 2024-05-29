@@ -6,7 +6,7 @@ int n;
 int dp[16];
 int t[16];
 int p[16];
-
+ 
 int main() {
 	cin >> n;
 	for (int i = 0; i < n; i++) {
